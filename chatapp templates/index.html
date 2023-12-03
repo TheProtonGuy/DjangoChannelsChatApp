@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Room</title>
+</head>
+<body>
+    <div class="parent">
+        <div class="child">
+            <h1>Enter Room</h1>
+            <form action="" method="POST">
+                {% csrf_token %}
+                <label for="">Username</label><br>
+                <input type="text" placeholder="Username" name="username" required><br>
+                <label for="">Room name</label><br>
+                <input type="text" placeholder="room name" name="room" required><br>
+                <center><button type="submit">Submit</button></center><br>
+            </form>
+        </div>
+    </div>
+</body>
+<style>
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.parent {
+    background-color: #DAAD86;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.child {
+    display: flex;
+    background-color: #659DBD;
+    height: 80vh;
+    width: 50%;
+    border-radius: 10px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 100px;
+}
+
+form {
+    width: 80%;
+}
+
+input {
+    padding: 10px;
+    border: 1px solid dodgerblue;
+    width: 100%;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+button {
+    background-color: #DAAD86;
+    padding: 10px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    width: 20%;
+}
+
+button:hover {
+    padding: 15px;
+    transition: 0.8s;
+}
+</style>
+</html>
