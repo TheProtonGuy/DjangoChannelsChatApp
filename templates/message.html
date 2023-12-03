@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Messages</title>
+    <!-- load static -->
+    {% load static %}
+    <!-- <link rel="stylesheet" href="{% static 'style.css' %}"> -->
+    <!-- link to h=css file -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <div class="parent">
+        <div class="child-2">
+            <center><h2>Chats</h2></center><hr>
+            <div class="chat-body-parent">
+                <div class="chat-body" id="tasks">
+                    <div class="message" id="chatContainer">
+                      <!-- received messages and displayed here -->
+                        {% for i in messages %}
+                            {% if i.sender != user %}
+                                <div class="receive">
+                                    <p style="color: #000;"> {{i.message}}<strong>-{{i.sender}}</strong></p>
+                                </div>
+                            {% else %}
+                                <div class="send">
+                                    <p style="color: #000;">{{i.message}}</p>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    <!-- end receive messages -->
+                    </div>
+
+                    <div class="form">
+                        <form action="" id="message-form" method="POST">
+                            {% csrf_token %}
+                            <textarea id="msg" cols="30" name="message" rows="10" placeholder="Enter your message" required></textarea>
+                            <button class="submit" type="submit">Send</button>
+                        </form>    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    function scrollToBottom() {
+        var chatContainer = document.getElementById("chatContainer");
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    const websocketProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const wsEndpoint = `${websocketProtocol}://${window.location.host}/ws/notification/{{room_name}}/`;
+    const socket = new WebSocket(wsEndpoint);
+
+    document.getElementById('message-form').addEventListener('submit', function(event){
+        event.preventDefault();
+        const message = document.getElementById('msg').value;
+        socket.send(
+            JSON.stringify({
+                'message': message,
+                'room_name': '{{room_name}}',
+                'sender': '{{user}}',
+            })
+        )
+    });
+
+    // response from consumer on server
+    socket.addEventListener("message", (event) => {
+        const messageData = JSON.parse(event.data)['message'];
+        console.log(messageData);
+        
+        var sender = messageData['sender'];
+        var message = messageData['message'];
+
+        // empty message input field after message has been sent
+        if (sender == {{user}}){
+            document.getElementById('msg').value = '';
+        }
+
+        // Here's where we append the message to the chatbox.
+        var messageDiv = document.querySelector('.message');
+        if (sender != '{{user}}') { // assuming you have a variable `currentUser` to hold the current user's name
+            messageDiv.innerHTML += '<div class="receive"><p style="color: #000;">' + message + '<strong>-' + sender + '</strong></p></div>';
+        } else {
+            messageDiv.innerHTML += '<div class="send"><p style="color: #000;">' + message + '</p></div>';
+        }
+        scrollToBottom();
+
+    });
+
+    socket.onopen = (event) => {
+        console.log("WebSocket connection opened!");
+    };
+
+    socket.onclose = (event) => {
+        console.log("WebSocket connection closed!");
+    };
+
+</script>
+<style>
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    }
+
+
+    .parent {
+      background-color: #B1A296;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        background-color: #659DBD;
+        padding: 10px;
+    }
+
+    nav ul li {
+        list-style: none;
+        display: inline-block;
+        padding: 10px;
+    }
+
+    nav ul li:hover {
+        background-color: dodgerblue;
+        color: #fff;
+        transition: 0.8s;
+    }
+
+    nav ul li a {
+        text-decoration: none;
+        color: #fff;
+    }
+
+    .parent {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        /* background-image: url("/static/img/bck.jpg");  */
+       
+        background-position: center; 
+        background-repeat: no-repeat; 
+        background-size: cover; 
+        align-items: center;
+        width: 100%;
+    }
+
+    .child-1 {
+        /* height: 70vh; */
+        width: 30%;
+        margin: 10px;
+        border-radius: 10px;
+        
+        background-color: white;
+    }
+
+    .chat-room {
+        width: 100%;
+        /* max-height: ; */
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        background-color: #fff;
+        border: 1px solid dodgerblue;
+    }
+
+    .profile-pic {
+        /* height: 80px; */
+        width: 15%;
+        
+        border-radius: 50px;
+        background-color: #fff;
+    }
+
+    .profile-pic img {
+        width:100%;
+        height:100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .chat-room h3 {
+        color: #000;
+    }
+
+    .chat-room h3 {
+        background-color: gray;
+        padding: 10px;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .chat-room h3 a {
+        text-decoration: none;
+        color: white;
+    }
+
+
+    .child-2 {
+        /* max-height: 100vh; */
+        width: 50%;
+        margin: 10px;
+        border-radius: 10px;
+        padding: 10px;
+        background-color: #FBEEC1;
+    }
+
+    .chat-body-parent {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* height: 60vh; */
+    }
+
+    .chat-body, .message {
+        /* max-height: 100vh; */
+        width: 100%;
+        background-color: #557A95;
+        border-radius: 10px;
+        display: flex;      
+        padding: 10px;
+        flex-direction: column;
+    }
+
+    .message {
+        max-height: 400px;  /* Or whatever height value you see fit */
+        overflow-y: auto;
+    }
+
+    .chat-body .message .receive, .send {
+        background-color: #B1A296;
+        max-width: 400px;
+       
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .send:hover {
+        padding: 15px;
+        transition: 0.8s;
+    }
+
+    .receive:hover {
+        padding: 15px;
+        transition: 0.8s;
+    }
+
+    .chat-body .message .send {
+        align-self: flex-end;
+    }
+
+    .chat-body .message .receive {
+        align-self: flex-start;
+    }
+
+    form {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    form textarea {
+        width: 70%;
+        height: 40px;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    form button {
+        width: 25%;
+        padding: 10px;
+        background-color: #FBEEC1;
+        border-radius: 5px;
+        border: none;
+        color: #000;
+    }
+    @media only screen and (max-width: 600px) {
+    .child-2 {
+        width: 100%;
+    }
+}
+
+</style>
+</html>
